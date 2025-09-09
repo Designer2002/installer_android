@@ -350,13 +350,20 @@ echo -e "\033[1;33mЭто может занять несколько минут.
 ./gradlew assembleDebug --no-daemon
 check_success
 
+# Build APK
+print_step "14" "APK СОБРАН!! это круто! Выполняется перемещение APK в папку за пределы Termux"
+echo -e "\033[1;33mВыполняем: cp ~/apk/app/build/outputs/apk/debug/psu_binding.apk /data/data/com.termux/files/home/ && exit
+&& mv ~/psu_binding.apk ~/storage/downloads/\033[0m"
+cp ~/apk/app/build/outputs/apk/debug/psu_binding.apk /data/data/com.termux/files/home/
+exit
+mv ~/psu_binding.apk ~/storage/downloads/
+check_success
+
 # Final message
 echo -e "\033[0;32m=== УСТАНОВКА ЗАВЕРШЕНА! ===\033[0m"
 echo -e "\033[0;32mГотовый APK находится здесь:\033[0m"
-echo -e "\033[0;34m~/apk/app/build/outputs/apk/debug/app-debug.apk\033[0m"
-echo -e ""
-echo -e "\033[1;33mЧтобы скопировать APK в хранилище, выполните:\033[0m"
-echo -e "\033[0;34mcp ~/apk/app/build/outputs/apk/debug/app-debug.apk ~/storage/shared/\033[0m"
+echo -e "\033[0;34m~/storage/downloads/"
+
 
 EOF
 

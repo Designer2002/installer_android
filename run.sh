@@ -350,19 +350,24 @@ echo -e "\033[1;33mЭто может занять несколько минут.
 ./gradlew assembleDebug --no-daemon
 check_success
 
-# Build APK
-print_step "14" "APK СОБРАН!! это круто! Выполняется перемещение APK в папку за пределы Termux"
-echo -e "\033[1;33mВыполняем: cp ~/apk/app/build/outputs/apk/debug/psu_binding.apk /data/data/com.termux/files/home/ && exit
-&& mv ~/psu_binding.apk ~/storage/downloads/\033[0m"
-cp ~/apk/app/build/outputs/apk/debug/psu_binding.apk /data/data/com.termux/files/home/
-exit
+
+# Copy APK out of Ubuntu environment
+print_step "14" "Перемещение APK в домашнюю директорию Termux..."
+cp ~/apk/app/build/outputs/apk/debug/app-debug.apk /data/data/com.termux/files/home/psu_binding.apk
+check_success
+
+EOF   # <-- здесь заканчивается proot-distro login
+
+# Теперь мы снова в Termux, а не в Ubuntu
+echo -e "\033[1;33mПеремещаем APK в Downloads...\033[0m"
 mv ~/psu_binding.apk ~/storage/downloads/
 check_success
 
 # Final message
 echo -e "\033[0;32m=== УСТАНОВКА ЗАВЕРШЕНА! ===\033[0m"
 echo -e "\033[0;32mГотовый APK находится здесь:\033[0m"
-echo -e "\033[0;34m~/storage/downloads/"
+echo -e "\033[0;34m~/storage/downloads/psu_binding.apk\033[0m"
+
 
 
 EOF

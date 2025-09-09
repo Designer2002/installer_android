@@ -353,7 +353,7 @@ check_success
 
 # Copy APK out of Ubuntu environment
 print_step "14" "Перемещение APK в домашнюю директорию Termux..."
-cp ~/apk/app/build/outputs/apk/debug/app-debug.apk /data/data/com.termux/files/home/psu_binding.apk
+cp ~/apk/app/build/outputs/apk/debug/psu_binding.apk /data/data/com.termux/files/home/psu_binding.apk
 check_success
 
 EOF   # <-- здесь заканчивается proot-distro login

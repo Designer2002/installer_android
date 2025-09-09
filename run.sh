@@ -57,7 +57,7 @@ install_package() {
 
 # Update and upgrade system
 print_step "0" "Создание системы proot-distro..."
-if command -v proot-distro &> /dev/null; then
+if command -v proot-distro &>/dev/null; then
     echo -e "${GREEN}✓ proot-distro уже установлен${NC}"
 else
     echo -e "${YELLOW}Выполняем: pkg install proot-distro${NC}"
@@ -74,7 +74,7 @@ else
 fi
 
 echo -e "${YELLOW}Вход в Ubuntu environment...${NC}"
-proot-distro login ubuntu << 'EOF'
+proot-distro login ubuntu <<'EOF'
 
 # Update and upgrade system
 print_step "1" "Обновление системы..."
@@ -94,12 +94,12 @@ print_step "3" "Создание директории Android SDK..."
 if is_directory_exists "$HOME/android-sdk/cmdline-tools"; then
     echo -e "${GREEN}✓ Директория Android SDK уже существует${NC}"
 else
-    echo -e "${YELLOW}Выполняем: mkdir -p \$HOME/android-sdk/cmdline-tools${NC}"
-    mkdir -p $HOME/android-sdk/cmdline-tools
+    echo -e "${YELLOW}Выполняем: mkdir -p $HOME/android-sdk/cmdline-tools${NC}"
+    mkdir -p "$HOME/android-sdk/cmdline-tools"
     check_success
 fi
 
-cd $HOME/android-sdk/cmdline-tools
+cd "$HOME/android-sdk/cmdline-tools"
 
 # Download Android command line tools
 print_step "4" "Загрузка Android Command Line Tools..."
@@ -166,7 +166,7 @@ if is_file_exists "$ANDROID_HOME/platforms/android-36/android.jar"; then
     echo -e "${GREEN}✓ android.jar уже существует в android-36${NC}"
 else
     echo -e "${YELLOW}Копируем android.jar из android-34 в android-36${NC}"
-    cp $ANDROID_HOME/platforms/android-34/android.jar $ANDROID_HOME/platforms/android-36/
+    cp "$ANDROID_HOME/platforms/android-34/android.jar" "$ANDROID_HOME/platforms/android-36/"
     check_success
 fi
 
@@ -197,7 +197,7 @@ else
     # Если все еще не найден, копируем из android-34
     if ! is_file_exists "$HOME/android-sdk/platforms/android-36/android.jar"; then
         sdkmanager "platforms;android-34"
-        cp ~/android-sdk/platforms/android-34/android.jar ~/android-sdk/platforms/android-36/
+        cp "$HOME/android-sdk/platforms/android-34/android.jar" "$HOME/android-sdk/platforms/android-36/"
     fi
     
     if is_file_exists "$HOME/android-sdk/platforms/android-36/android.jar"; then
@@ -213,19 +213,19 @@ print_step "9" "Клонирование проекта..."
 if is_directory_exists "$HOME/apk"; then
     echo -e "${GREEN}✓ Проект уже склонирован${NC}"
     echo -e "${YELLOW}Обновляем репозиторий...${NC}"
-    cd $HOME/apk
+    cd "$HOME/apk"
     git pull
     check_success
 else
     echo -e "${YELLOW}Выполняем: git clone https://github.com/Designer2002/apk.git${NC}"
-    cd $HOME
+    cd "$HOME"
     git clone https://github.com/Designer2002/apk.git
     check_success
 fi
 
 # Setup project directory
 print_step "10" "Настройка директории проекта и переменных окружения..."
-cd ~/apk
+cd "$HOME/apk"
 
 if is_file_exists "local.properties" && grep -q "sdk.dir=$HOME/android-sdk" local.properties; then
     echo -e "${GREEN}✓ local.properties уже настроен${NC}"

@@ -356,7 +356,8 @@ print_step "14" "Перемещение APK в домашнюю директор
 cp ~/apk/app/build/outputs/apk/debug/psu_binding.apk /data/data/com.termux/files/home/psu_binding.apk
 check_success
 
-EOF   # <-- здесь заканчивается proot-distro login
+EOF 
+EOF
 
 # Теперь мы снова в Termux, а не в Ubuntu
 echo -e "\033[1;33mПеремещаем APK в Downloads...\033[0m"
@@ -370,6 +371,6 @@ echo -e "\033[0;34m~/storage/downloads/psu_binding.apk\033[0m"
 
 
 
-EOF
+
 
 echo -e "${GREEN}=== СКРИПТ ВЫПОЛНЕН В Ubuntu environment ===${NC}"

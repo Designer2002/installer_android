@@ -278,16 +278,16 @@ export AAPT2=$ANDROID_HOME/build-tools/34.0.0/aapt2
 if grep -q "^android.aapt2.FromMavenOverride=" gradle.properties 2>/dev/null; then
     sed -i "s|^android.aapt2.FromMavenOverride=.*|android.aapt2.FromMavenOverride=$AAPT2|" gradle.properties
 else
-    echo "android.aapt2.FromMavenOverride=$AAPT2" >> gradle.properties
+    echo "\nandroid.aapt2.FromMavenOverride=$AAPT2" >> gradle.properties
 fi
 
 # JVM args всегда можно обновить аналогично
 if grep -q "^org.gradle.jvmargs=" gradle.properties 2>/dev/null; then
     sed -i "s|^org.gradle.jvmargs=.*|org.gradle.jvmargs=-Xmx4608m|" gradle.properties
 else
-    echo "org.gradle.jvmargs=-Xmx4608m" >> gradle.properties
+    echo "\norg.gradle.jvmargs=-Xmx4608m" >> gradle.properties
 fi
-
+echo "\nandroid.aapt2.daemon=false" >> gradle.properties
 check_success
 
 

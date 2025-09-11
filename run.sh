@@ -271,15 +271,25 @@ else
     check_success
 fi
 
-if is_file_exists "gradle.properties" && grep -q "android.aapt2.FromMavenOverride" gradle.properties; then
-    echo -e "\033[0;32m✓ gradle.properties уже настроен\033[0m"
+echo -e "\033[1;33mВыполняем: настройка gradle.properties\033[0m"
+export AAPT2=$ANDROID_HOME/build-tools/34.0.0/aapt2
+
+# Если строка есть — заменяем, если нет — добавляем
+if grep -q "^android.aapt2.FromMavenOverride=" gradle.properties 2>/dev/null; then
+    sed -i "s|^android.aapt2.FromMavenOverride=.*|android.aapt2.FromMavenOverride=$AAPT2|" gradle.properties
 else
-    echo -e "\033[1;33mВыполняем: настройка gradle.properties\033[0m"
-    export AAPT2=$ANDROID_HOME/build-tools/34.0.0/aapt2
     echo "android.aapt2.FromMavenOverride=$AAPT2" >> gradle.properties
-    echo "org.gradle.jvmargs=-Xmx4608m" >> gradle.properties
-    check_success
 fi
+
+# JVM args всегда можно обновить аналогично
+if grep -q "^org.gradle.jvmargs=" gradle.properties 2>/dev/null; then
+    sed -i "s|^org.gradle.jvmargs=.*|org.gradle.jvmargs=-Xmx4608m|" gradle.properties
+else
+    echo "org.gradle.jvmargs=-Xmx4608m" >> gradle.properties
+fi
+
+check_success
+
 
 # Make gradlew executable
 print_step "11" "Делаем gradlew исполняемым..."

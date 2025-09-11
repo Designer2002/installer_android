@@ -10,8 +10,6 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}=== Установщик Привязки ПсУ ===${NC}"
 echo -e "${YELLOW}Начинаем процесс установки...${NC}"
 
-pkg install aapt2
-
 # Function to print step messages
 print_step() {
     echo -e "${GREEN}[ШАГ $1]${NC} $2"
@@ -66,7 +64,7 @@ else
     pkg install proot-distro
     check_success
 fi
-
+pkg install aapt2
 if is_directory_exists "/data/data/com.termux/files/usr/var/lib/proot-distro/installed-rootfs/ubuntu"; then
     echo -e "${GREEN}✓ Ubuntu уже установлена в proot-distro${NC}"
 else
@@ -109,7 +107,7 @@ check_success
 
 # Install required packages
 print_step "2" "Установка необходимых пакетов..."
-packages=("openjdk-17-jdk" "openssl" "ca-certificates" "libzbar0" "python3" "wget" "unzip" "git" "curl" "unzip")
+packages=("openjdk-17-jdk" "libzbar0" "python" "wget" "unzip" "git" "curl" "unzip")
 for package in "${packages[@]}"; do
     if dpkg -l "$package" 2>/dev/null | grep -q "^ii"; then
         echo -e "\033[0;32m✓ Пакет $package уже установлен\033[0m"
@@ -119,8 +117,6 @@ for package in "${packages[@]}"; do
         check_success
     fi
 done
-update-ca-certificates
-apt upgrade openssl
 
 # Create Android SDK directory
 print_step "3" "Создание директории Android SDK..."
@@ -209,7 +205,7 @@ fi
 
 # Install Android SDK components
 print_step "7" "Установка компонентов Android SDK..."
-components=("platform-tools" "build-tools;35.0.0" "platforms;android-35")
+components=("platform-tools" "build-tools;36.0.0" "platforms;android-36")
 missing=()
 for component in "${components[@]}"; do
     # compute expected path for this component
@@ -230,6 +226,31 @@ else
     echo -e "\033[0;32m✓ Все требуемые компоненты уже установлены\033[0m"
 fi
 
+# Install android-34 platform for compatibility if missing
+if [ -d "$ANDROID_HOME/platforms/android-34" ]; then
+    echo -e "\033[0;32m✓ Платформа android-34 уже установлена\033[0m"
+else
+    echo -e "\033[1;33mУстанавливаем платформу android-34\033[0m"
+    echo y | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-34"
+    check_success
+fi
+
+# Copy android.jar from android-34 to android-36 if needed
+if is_file_exists "$ANDROID_HOME/platforms/android-36/android.jar"; then
+    echo -e "\033[0;32m✓ android.jar уже существует в android-36\033[0m"
+else
+    echo -e "\033[1;33mКопируем android.jar из android-34 в android-36\033[0m"
+    mkdir -p "$ANDROID_HOME/platforms/android-36"
+    if is_file_exists "$ANDROID_HOME/platforms/android-34/android.jar"; then
+        cp "$ANDROID_HOME/platforms/android-34/android.jar" "$ANDROID_HOME/platforms/android-36/"
+        check_success
+    else
+        echo -e "\033[0;33mandroid-34/android.jar не найден, пытаемся скачать платформу android-34\033[0m"
+        echo y | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-34"
+        check_success
+        cp "$ANDROID_HOME/platforms/android-34/android.jar" "$ANDROID_HOME/platforms/android-36/" || true
+    fi
+fi
 
 # Accept licenses (try automatic, otherwise ask user)
 print_step "8" "Принятие лицензий..."
@@ -242,6 +263,31 @@ else
     echo -e "\033[0;34m$SDKMANAGER --sdk_root=$ANDROID_HOME --licenses\033[0m"
     echo -e "\033[1;33mПосле принятия лицензий нажмите Enter для продолжения...\033[0m"
     read -r _
+fi
+
+# Проверка наличия android.jar (еще раз)
+print_step "8.1" "Проверка android-36/android.jar..."
+if is_file_exists "$HOME/android-sdk/platforms/android-36/android.jar"; then
+    echo -e "\033[0;32m✔ Найден android.jar в android-36\033[0m"
+else
+    echo -e "\033[0;31m✘ android.jar не найден. Скачиваем вручную... (fallback)\033[0m"
+    mkdir -p "$HOME/android-sdk/platforms/android-36"
+    cd "$HOME/android-sdk/platforms/android-36" || exit 1
+    curl -O https://dl.google.com/android/repository/platform-36_r01.zip
+    unzip -o platform-36_r01.zip
+    rm -f platform-36_r01.zip
+
+    if ! is_file_exists "$HOME/android-sdk/platforms/android-36/android.jar"; then
+        echo y | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-34"
+        cp "$HOME/android-sdk/platforms/android-34/android.jar" "$HOME/android-sdk/platforms/android-36/" || true
+    fi
+
+    if is_file_exists "$HOME/android-sdk/platforms/android-36/android.jar"; then
+        echo -e "\033[0;32m✔ android.jar успешно установлен\033[0m"
+    else
+        echo -e "\033[0;31m✘ Не удалось получить android.jar\033[0m"
+        exit 1
+    fi
 fi
 
 # Clone the project
@@ -271,25 +317,15 @@ else
     check_success
 fi
 
-echo -e "\033[1;33mВыполняем: настройка gradle.properties\033[0m"
-export AAPT2=$ANDROID_HOME/build-tools/35.0.0/aapt2
-
-# Если строка есть — заменяем, если нет — добавляем
-if grep -q "^android.aapt2.FromMavenOverride=" gradle.properties 2>/dev/null; then
-    sed -i "s|^android.aapt2.FromMavenOverride=.*|android.aapt2.FromMavenOverride=$AAPT2|" gradle.properties
+if is_file_exists "gradle.properties" && grep -q "android.aapt2.FromMavenOverride" gradle.properties; then
+    echo -e "\033[0;32m✓ gradle.properties уже настроен\033[0m"
 else
+    echo -e "\033[1;33mВыполняем: настройка gradle.properties\033[0m"
+    export AAPT2="/data/data/com.termux/files/usr/bin/aapt2"
     echo "android.aapt2.FromMavenOverride=$AAPT2" >> gradle.properties
-fi
-
-# JVM args всегда можно обновить аналогично
-if grep -q "^org.gradle.jvmargs=" gradle.properties 2>/dev/null; then
-    sed -i "s|^org.gradle.jvmargs=.*|org.gradle.jvmargs=-Xmx4608m|" gradle.properties
-else
     echo "org.gradle.jvmargs=-Xmx4608m" >> gradle.properties
+    check_success
 fi
-echo "android.aapt2.daemon=false" >> gradle.properties
-check_success
-
 
 # Make gradlew executable
 print_step "11" "Делаем gradlew исполняемым..."

@@ -107,7 +107,7 @@ check_success
 
 # Install required packages
 print_step "2" "Установка необходимых пакетов..."
-packages=("openjdk-17-jdk" "wget" "unzip" "git" "curl" "unzip")
+packages=("openjdk-17-jdk" "openssl" "aapt2" "ca-certificates" "libzbar0" "python" "wget" "unzip" "git" "curl" "unzip")
 for package in "${packages[@]}"; do
     if dpkg -l "$package" 2>/dev/null | grep -q "^ii"; then
         echo -e "\033[0;32m✓ Пакет $package уже установлен\033[0m"
@@ -117,6 +117,8 @@ for package in "${packages[@]}"; do
         check_success
     fi
 done
+update-ca-certificates
+apt upgrade openssl
 
 # Create Android SDK directory
 print_step "3" "Создание директории Android SDK..."

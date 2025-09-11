@@ -275,7 +275,7 @@ if is_file_exists "gradle.properties" && grep -q "android.aapt2.FromMavenOverrid
     echo -e "\033[0;32m✓ gradle.properties уже настроен\033[0m"
 else
     echo -e "\033[1;33mВыполняем: настройка gradle.properties\033[0m"
-    export AAPT2="/data/data/com.termux/files/usr/bin/aapt2"
+    export AAPT2=$ANDROID_HOME/build-tools/34.0.0/aapt2
     echo "android.aapt2.FromMavenOverride=$AAPT2" >> gradle.properties
     echo "org.gradle.jvmargs=-Xmx4608m" >> gradle.properties
     check_success

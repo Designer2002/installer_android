@@ -10,6 +10,8 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}=== Установщик Привязки ПсУ ===${NC}"
 echo -e "${YELLOW}Начинаем процесс установки...${NC}"
 
+pkg install aapt2
+
 # Function to print step messages
 print_step() {
     echo -e "${GREEN}[ШАГ $1]${NC} $2"
@@ -107,7 +109,7 @@ check_success
 
 # Install required packages
 print_step "2" "Установка необходимых пакетов..."
-packages=("openjdk-17-jdk" "openssl" "aapt2" "ca-certificates" "libzbar0" "python" "wget" "unzip" "git" "curl" "unzip")
+packages=("openjdk-17-jdk" "openssl" "ca-certificates" "libzbar0" "python" "wget" "unzip" "git" "curl" "unzip")
 for package in "${packages[@]}"; do
     if dpkg -l "$package" 2>/dev/null | grep -q "^ii"; then
         echo -e "\033[0;32m✓ Пакет $package уже установлен\033[0m"

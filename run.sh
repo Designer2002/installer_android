@@ -209,7 +209,7 @@ fi
 
 # Install Android SDK components
 print_step "7" "Установка компонентов Android SDK..."
-components=("platform-tools" "build-tools;36.0.0" "platforms;android-36")
+components=("platform-tools" "build-tools;34.0.0" "platforms;android-34")
 missing=()
 for component in "${components[@]}"; do
     # compute expected path for this component
@@ -228,32 +228,6 @@ if [ ${#missing[@]} -gt 0 ]; then
     check_success
 else
     echo -e "\033[0;32m✓ Все требуемые компоненты уже установлены\033[0m"
-fi
-
-# Install android-34 platform for compatibility if missing
-if [ -d "$ANDROID_HOME/platforms/android-34" ]; then
-    echo -e "\033[0;32m✓ Платформа android-34 уже установлена\033[0m"
-else
-    echo -e "\033[1;33mУстанавливаем платформу android-34\033[0m"
-    echo y | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-34"
-    check_success
-fi
-
-# Copy android.jar from android-34 to android-36 if needed
-if is_file_exists "$ANDROID_HOME/platforms/android-36/android.jar"; then
-    echo -e "\033[0;32m✓ android.jar уже существует в android-36\033[0m"
-else
-    echo -e "\033[1;33mКопируем android.jar из android-34 в android-36\033[0m"
-    mkdir -p "$ANDROID_HOME/platforms/android-36"
-    if is_file_exists "$ANDROID_HOME/platforms/android-34/android.jar"; then
-        cp "$ANDROID_HOME/platforms/android-34/android.jar" "$ANDROID_HOME/platforms/android-36/"
-        check_success
-    else
-        echo -e "\033[0;33mandroid-34/android.jar не найден, пытаемся скачать платформу android-34\033[0m"
-        echo y | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-34"
-        check_success
-        cp "$ANDROID_HOME/platforms/android-34/android.jar" "$ANDROID_HOME/platforms/android-36/" || true
-    fi
 fi
 
 # Accept licenses (try automatic, otherwise ask user)

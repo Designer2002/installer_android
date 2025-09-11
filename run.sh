@@ -230,6 +230,7 @@ else
     echo -e "\033[0;32m✓ Все требуемые компоненты уже установлены\033[0m"
 fi
 
+
 # Accept licenses (try automatic, otherwise ask user)
 print_step "8" "Принятие лицензий..."
 echo -e "\033[1;33mПробуем автоматически принять лицензии (если получится)...\033[0m"
@@ -241,31 +242,6 @@ else
     echo -e "\033[0;34m$SDKMANAGER --sdk_root=$ANDROID_HOME --licenses\033[0m"
     echo -e "\033[1;33mПосле принятия лицензий нажмите Enter для продолжения...\033[0m"
     read -r _
-fi
-
-# Проверка наличия android.jar (еще раз)
-print_step "8.1" "Проверка android-36/android.jar..."
-if is_file_exists "$HOME/android-sdk/platforms/android-36/android.jar"; then
-    echo -e "\033[0;32m✔ Найден android.jar в android-36\033[0m"
-else
-    echo -e "\033[0;31m✘ android.jar не найден. Скачиваем вручную... (fallback)\033[0m"
-    mkdir -p "$HOME/android-sdk/platforms/android-36"
-    cd "$HOME/android-sdk/platforms/android-36" || exit 1
-    curl -O https://dl.google.com/android/repository/platform-36_r01.zip
-    unzip -o platform-36_r01.zip
-    rm -f platform-36_r01.zip
-
-    if ! is_file_exists "$HOME/android-sdk/platforms/android-36/android.jar"; then
-        echo y | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-34"
-        cp "$HOME/android-sdk/platforms/android-34/android.jar" "$HOME/android-sdk/platforms/android-36/" || true
-    fi
-
-    if is_file_exists "$HOME/android-sdk/platforms/android-36/android.jar"; then
-        echo -e "\033[0;32m✔ android.jar успешно установлен\033[0m"
-    else
-        echo -e "\033[0;31m✘ Не удалось получить android.jar\033[0m"
-        exit 1
-    fi
 fi
 
 # Clone the project

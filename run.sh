@@ -209,7 +209,7 @@ fi
 
 # Install Android SDK components
 print_step "7" "Установка компонентов Android SDK..."
-components=("platform-tools" "build-tools;34.0.0" "platforms;android-34")
+components=("platform-tools" "build-tools;35.0.0" "platforms;android-35")
 missing=()
 for component in "${components[@]}"; do
     # compute expected path for this component
@@ -272,7 +272,7 @@ else
 fi
 
 echo -e "\033[1;33mВыполняем: настройка gradle.properties\033[0m"
-export AAPT2=$ANDROID_HOME/build-tools/34.0.0/aapt2
+export AAPT2=$ANDROID_HOME/build-tools/35.0.0/aapt2
 
 # Если строка есть — заменяем, если нет — добавляем
 if grep -q "^android.aapt2.FromMavenOverride=" gradle.properties 2>/dev/null; then

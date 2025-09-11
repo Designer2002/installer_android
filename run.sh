@@ -109,7 +109,7 @@ check_success
 
 # Install required packages
 print_step "2" "Установка необходимых пакетов..."
-packages=("openjdk-17-jdk" "openssl" "ca-certificates" "libzbar0" "python" "wget" "unzip" "git" "curl" "unzip")
+packages=("openjdk-17-jdk" "openssl" "ca-certificates" "libzbar0" "python3" "wget" "unzip" "git" "curl" "unzip")
 for package in "${packages[@]}"; do
     if dpkg -l "$package" 2>/dev/null | grep -q "^ii"; then
         echo -e "\033[0;32m✓ Пакет $package уже установлен\033[0m"
